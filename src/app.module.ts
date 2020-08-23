@@ -2,9 +2,8 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { number, object, string } from '@hapi/joi';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ENV } from './common/enums/env.enum';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -24,6 +23,7 @@ import { ENV } from './common/enums/env.enum';
         MONGO_DB_PASSWORD: string().required(),
         MONGO_DB_DATABASE: string().required(),
         MONGO_DB_URL: string().required(),
+        PASSWORD_SECRET: string().required(),
       }),
     }),
     MongooseModule.forRootAsync({
@@ -39,8 +39,7 @@ import { ENV } from './common/enums/env.enum';
       },
       inject: [ConfigService],
     }),
+    UsersModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
