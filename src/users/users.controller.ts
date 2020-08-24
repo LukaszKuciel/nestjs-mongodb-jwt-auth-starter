@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Logger, Post, UseGuards, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { GetUserId } from 'src/common/decorators/get-user-id.decorator';
 import { CreateUserDTO } from './DTOs/create-user.dto';
 import { LoginDTO } from './DTOs/login.dto';
@@ -15,6 +15,7 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post('/')
+  @ApiOperation({ summary: 'Create user.' })
   @ApiCreatedResponse({description: 'User has been successfully registered.'})
   @ApiConflictResponse({description: 'User with provided email already exists.'})
   async create(@Body(ValidationPipe) createUserDTO: CreateUserDTO): Promise<{ id: string }> {
@@ -22,6 +23,7 @@ export class UsersController {
   }
 
   @Post('/login')
+  @ApiOperation({ summary: 'Login user.' })
   @ApiOkResponse({ description: 'User authenticated.'})
   @ApiUnauthorizedResponse({ description: 'Wrong credentials'})
   async login(@Body(ValidationPipe) loginDTO: LoginDTO): Promise<{ accessToken: string }> {
@@ -30,6 +32,7 @@ export class UsersController {
 
   @Get('/me')
   @UseGuards(AuthGuard())
+  @ApiBearerAuth()
   @ApiOkResponse({ description: 'User id and email.', type: User })
   @ApiUnauthorizedResponse({ description: 'Unauthorized'})
   async get(@GetUserId() userId: string): Promise<Partial<User>> {
