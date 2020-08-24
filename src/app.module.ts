@@ -24,6 +24,7 @@ import { UsersModule } from './users/users.module';
         MONGO_DB_DATABASE: string().required(),
         MONGO_DB_URL: string().required(),
         PASSWORD_SECRET: string().required(),
+        JWT_SECRET: string().required(),
       }),
     }),
     MongooseModule.forRootAsync({

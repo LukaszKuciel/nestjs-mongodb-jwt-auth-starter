@@ -1,6 +1,10 @@
-import { Body, Controller, Logger, Post, ValidationPipe } from '@nestjs/common';
-import { ApiConflictResponse, ApiCreatedResponse, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Logger, Post, UseGuards, ValidationPipe } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { ApiConflictResponse, ApiCreatedResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { GetUserId } from 'src/common/decorators/get-user-id.decorator';
 import { CreateUserDTO } from './DTOs/create-user.dto';
+import { LoginDTO } from './DTOs/login.dto';
+import { User } from './models/user.model';
 import { UsersService } from './users.service';
 
 @ApiTags('users')
@@ -12,8 +16,23 @@ export class UsersController {
 
   @Post('/')
   @ApiCreatedResponse({description: 'User has been successfully registered.'})
-  @ApiConflictResponse({description: 'User with provided email exists.'})
+  @ApiConflictResponse({description: 'User with provided email already exists.'})
   async create(@Body(ValidationPipe) createUserDTO: CreateUserDTO): Promise<{ id: string }> {
    return await this.usersService.create(createUserDTO);
+  }
+
+  @Post('/login')
+  @ApiOkResponse({ description: 'User authenticated.'})
+  @ApiUnauthorizedResponse({ description: 'Wrong credentials'})
+  async login(@Body(ValidationPipe) loginDTO: LoginDTO): Promise<{ accessToken: string }> {
+    return await this.usersService.login(loginDTO);
+  }
+
+  @Get('/me')
+  @UseGuards(AuthGuard())
+  @ApiOkResponse({ description: 'User id and email.', type: User })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized'})
+  async get(@GetUserId() userId: string): Promise<Partial<User>> {
+    return await this.usersService.getMe(userId);
   }
 }

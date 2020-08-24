@@ -29,4 +29,13 @@ export class UserRepository {
       throw error;
     }
   }
+
+  async findById(id: string): Promise<Partial<User>> {
+    try {
+      return await this.userModel.findOne({ id });
+    } catch (error) {
+      this.logger.error(`Failed to find user ${error.message}`);
+      throw error;
+    }
+  }
 }
